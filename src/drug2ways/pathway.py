@@ -55,7 +55,7 @@ def analyze_paths(
         for index, node in enumerate(path):
             results[index][id2node[node]] += 1
 
-    POLARITY = {1: '->', -1: '-|'}
+    polarity_dict = {1: '->', -1: '-|'}
 
     final_paths = set()
     for path in paths:
@@ -68,7 +68,7 @@ def analyze_paths(
             if index + 1 == len(path):
                 continue
 
-            polarity = POLARITY[reduced_graph[node][path[index + 1]]['polarity']]
+            polarity = polarity_dict[reduced_graph[node][path[index + 1]]['polarity']]
 
             if index == 0:
                 reconstructed_path.append(node)
