@@ -16,9 +16,9 @@ The two easiest format to work with drug2ways are a triple-based file represente
 The file must contain three columns: source, relation and target (order is not relevant) and the only condition is that
 the relation column contains 1 and -1 to indicate the direction of the relation (increase/decrease).
 
-+----------+----------+---------+
-| source   | relation | target  |
-+==========+==========+=========+
++----------+---------+----------+
+| source   | relation| target   |
++==========+=========+==========+
 |  Drug1   |   -1    | Protein1 |
 +----------+---------+----------+
 | Protein1 |    1    | Protein2 |
