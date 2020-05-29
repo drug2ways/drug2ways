@@ -33,7 +33,7 @@ def _compute_all_paths_multitarget(graph, source, targets, history, lmax):
                 paths[0][target_id][0] += 1
             else:
                 paths[0][target_id][1] += 1
-            
+
             continue
 
         if neighbor not in history or neighbor in history and len(history[neighbor]) < lmax - 1:
@@ -306,7 +306,7 @@ def _compute_all_simple_paths_multitarget_dict(graph, source, targets, lmax, his
 
                     # Get paths starting from neighbor that have source as intermediate node
                     paths_in_cycle = intermediate_nodes.get(source, [0, 0])
-                    
+
                     if paths_in_cycle[0] or paths_in_cycle[1]:
                         # Cycle detected.
                         # Find all paths / nodes involved in cycle so they can be removed
