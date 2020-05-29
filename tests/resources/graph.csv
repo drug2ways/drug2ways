@@ -1,0 +1,9 @@
+source,target,relation
+a,b,1
+b,d,1
+e,b,1
+d,e,1
+d,g,1
+a,c,1
+c,f,1
+f,g,-1

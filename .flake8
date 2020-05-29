@@ -1,0 +1,35 @@
+#########################
+# Flake8 Configuration  #
+# (.flake8)             #
+# (formerly in tox.ini) #
+#########################
+
+[flake8]
+ignore = 
+	E501
+	I100  # Import statements are in the wrong order
+	I101  # Imported names are in the wrong order
+	F405 # Stars import
+	F403 # imports not used in init
+	F401 # imports not used in init
+	C901 # too complex methods
+	F841
+	I201
+	I202
+	W503 # Binary operator
+exclude =
+    .tox,
+    .git,
+    __pycache__,
+    docs/source/conf.py,
+    build,
+    dist,
+    tests/fixtures/*,
+    *.pyc,
+    *.egg-info,
+    .cache,
+    .eggs
+max-complexity = 10
+import-order-style = pycharm
+application-import-names = drug2ways
+format = ${cyan}%(path)s${reset}:${yellow_bold}%(row)d${reset}:${green_bold}%(col)d${reset}: ${red_bold}%(code)s${reset} %(text)s

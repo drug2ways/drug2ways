@@ -1,0 +1,19 @@
+[run]
+branch = True
+source = drug2ways
+omit =
+    src/drug2ways/__main__.py
+    src/drug2ways/cli.py
+    tests/*
+    docs/*
+
+[paths]
+source =
+    src/drug2ways
+    .tox/*/lib/python*/site-packages/drug2ways
+
+[report]
+show_missing = True
+exclude_lines =
+    def __str__
+    def __repr__
