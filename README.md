@@ -17,6 +17,11 @@
   <a href='https://opensource.org/licenses/Apache-2.0'>
     <img src='https://img.shields.io/badge/License-Apache%202.0-blue.svg' alt='License'/>
   </a>
+
+  <a href="https://zenodo.org/badge/latestdoi/267315762">
+    <img src="https://zenodo.org/badge/267315762.svg" alt="DOI">
+  </a>
+
 </p>
 
 <p align="center">
