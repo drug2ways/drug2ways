@@ -44,6 +44,12 @@ drug has a greater likelihood of interacting with its target, and its target wit
 pathological phenotype as the number of possible paths connecting a drug to the phenotype increases. Based on this
 hypothesis, this software can be applied for different applications outlined in the next section.
 
+### Citation
+If you use drug2ways for your research please cite our [preprint](https://www.biorxiv.org/content/10.1101/2020.06.07.138388v1): 
+
+> Daniel Rivas-Barragan, Sarah Mubeen, Francesc Guim-Bernat,Martin Hofmann-Apitius, and Daniel Domingo-Fernández (2020)
+Drug2ways: Reasoning over causal paths in biological networks for drug discovery. bioRxiv 2020.06.07.138388; https://doi.org/10.1101/2020.06.07.138388
+
 ## Applications
 Drug2ways can be applied for three different applications:
 
