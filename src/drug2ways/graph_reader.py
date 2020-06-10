@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Tuple
 import pandas as pd
 from networkx import DiGraph, read_graphml, read_gml, node_link_graph, read_edgelist, connected_components
 from pybel.io.gpickle import from_pickle
-from pybel.io.lines import from_path
+from pybel.io.lines import from_bel_script
 from tqdm import tqdm
 
 from .bel_helper import process_bel_graph
@@ -99,7 +99,7 @@ def load_graph(path: str, fmt: str) -> DiGraph:
         return read_gml(path)
 
     elif fmt == BEL:
-        bel_graph = from_path(path)
+        bel_graph = from_bel_script(path)
         return process_bel_graph(bel_graph)
 
     elif fmt == BEL_PICKLE:
