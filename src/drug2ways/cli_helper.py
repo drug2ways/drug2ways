@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import time
+from typing import List, Optional, Union
 
 import click
 from networkx import DiGraph
@@ -16,6 +17,16 @@ from drug2ways.graph_reader import load_graph, read_nodes, read_nodes_to_optimiz
 from drug2ways.wrapper import wrapper_explore, wrapper_optimize, wrapper_combine, wrapper_pathway_enrichment
 
 logger = logging.getLogger(__name__)
+
+
+def _handle_lmax_parameter(lmax) -> Optional[List[int]]:
+    """Prepare iterable for lmax"""
+    if isinstance(lmax, int):
+        return [lmax]
+    elif isinstance(lmax, List):
+        return lmax
+    else:
+        raise ValueError('Unknown type for lmax')
 
 
 def check_graph_input(sources: str, targets: str, fmt: str, drug_search_bel: bool) -> None:
@@ -81,7 +92,7 @@ def _explore_helper(
     fmt: str,
     sources: str,
     targets: str,
-    lmax: int,
+    lmax: Union[int, List[int]],
     simple_paths: bool,
     log: bool,
     export_time: bool,
@@ -103,6 +114,7 @@ def _explore_helper(
     :param name: name of the graph for output purposes
     :param drug_search_bel: search drugs automatically in BEL
     """
+
     """Parallelization of the calculations to improve efficiency"""
     # Initialize MPI environment and variables, if found.
     number_of_processes = 1
@@ -118,7 +130,7 @@ def _explore_helper(
 
     # Setup logging.
     # MPI ranks other than master will have it set to WARNING
-    _setup_logging(log, lmax, process_id)
+    _setup_logging(log, process_id)
 
     # Ensure file is valid
     check_graph_input(sources, targets, fmt, drug_search_bel)
@@ -145,36 +157,45 @@ def _explore_helper(
             click.echo(f"{EMOJI} Distributing work among {number_of_processes} processes. {EMOJI}")
 
     path_mode = "simple-paths" if simple_paths else "cycles"
-    click.secho(
-        f'{EMOJI} Calculating paths with lmax ({lmax}) on {path_mode} mode. This might take a while... {EMOJI}',
-    )
 
-    # Track the time it takes to run
-    exe_t_0 = time.time()
-    # Call main function
-    results, time_cache = wrapper_explore(
-        graph=directed_graph,
-        source_nodes=source_nodes,
-        target_nodes=targets_nodes,
-        lmax=lmax,
-        simple_paths=simple_paths,
-    )
-    # Finished time
-    exe_t_f = time.time()
-    running_time = exe_t_f - exe_t_0
-    if process_id == 0:
-        click.secho(f'{EMOJI} Finished in {running_time} seconds {EMOJI}')
+    """Export results for each lmax"""
+    for lmax in _handle_lmax_parameter(lmax):
+        click.secho(
+            f'{EMOJI} Calculating paths with lmax ({lmax}) on {path_mode} mode. This might take a while... {EMOJI}',
+        )
 
-        # Export results
-        with open(os.path.join(output, f'{name}all_against_all_lmax_{lmax}.json'), 'w') as f:
-            json.dump(results, f, indent=2)
+        # Warn user if lmax larger than 12
+        if lmax > 12:
+            logger.warning(
+                f"Note that the selected Lmax '{lmax}' might converge results if your graph is not large enough"
+            )
 
-        # Export time
-        if export_time:
-            with open(os.path.join(output, f'{name}time_cache_{lmax}.json'), 'w') as f:
-                json.dump(time_cache, f, indent=2)
+        # Track the time it takes to run
+        exe_t_0 = time.time()
+        # Call main function
+        results, time_cache = wrapper_explore(
+            graph=directed_graph,
+            source_nodes=source_nodes,
+            target_nodes=targets_nodes,
+            lmax=lmax,
+            simple_paths=simple_paths,
+        )
+        # Finished time
+        exe_t_f = time.time()
+        running_time = exe_t_f - exe_t_0
+        if process_id == 0:
+            click.secho(f'{EMOJI} Finished in {running_time} seconds {EMOJI}')
 
-        click.secho(f'{EMOJI} Results exported to {output} {EMOJI}')
+            # Export results
+            with open(os.path.join(output, f'{name}all_against_all_lmax_{lmax}.json'), 'w') as f:
+                json.dump(results, f, indent=2)
+
+            # Export time
+            if export_time:
+                with open(os.path.join(output, f'{name}time_cache_{lmax}.json'), 'w') as f:
+                    json.dump(time_cache, f, indent=2)
+
+            click.secho(f'{EMOJI} Results exported to {output} {EMOJI}')
 
 
 def _optimize_helper(
@@ -274,34 +295,37 @@ def _combine_helper(
     )
 
     path_mode = "simple-paths" if simple_paths else "cycles"
-    click.secho(
-        f'{EMOJI} Calculating paths with lmax ({lmax}) on {path_mode} mode. This might take a while... {EMOJI}',
-    )
 
-    # Track the time it takes to run
-    exe_t_0 = time.time()
-    # Call main function
-    results = wrapper_combine(
-        graph=directed_graph,
-        source_nodes=source_nodes,
-        activate_targets=activate_targets,
-        inhibit_targets=inhibit_targets,
-        activation_threshold=activation_threshold,
-        combination_length=combination_length,
-        lmax=lmax,
-        simple_paths=simple_paths,
-    )
-    # Finished time
-    exe_t_f = time.time()
-    running_time = exe_t_f - exe_t_0
-    if process_id == 0:
-        click.secho(f'{EMOJI} Finished in {running_time} seconds {EMOJI}')
+    """Export results for each lmax"""
+    for lmax in _handle_lmax_parameter(lmax):
+        click.secho(
+            f'{EMOJI} Calculating paths with lmax ({lmax}) on {path_mode} mode. This might take a while... {EMOJI}',
+        )
 
-        # Export results
-        with open(os.path.join(output, f'combine_{combination_length}_drugs_lmax_{lmax}.json'), 'w') as f:
-            json.dump(results, f, indent=2)
+        # Track the time it takes to run
+        exe_t_0 = time.time()
+        # Call main function
+        results = wrapper_combine(
+            graph=directed_graph,
+            source_nodes=source_nodes,
+            activate_targets=activate_targets,
+            inhibit_targets=inhibit_targets,
+            activation_threshold=activation_threshold,
+            combination_length=combination_length,
+            lmax=lmax,
+            simple_paths=simple_paths,
+        )
+        # Finished time
+        exe_t_f = time.time()
+        running_time = exe_t_f - exe_t_0
+        if process_id == 0:
+            click.secho(f'{EMOJI} Finished in {running_time} seconds {EMOJI}')
 
-        click.secho(f'{EMOJI} Results exported to {output} {EMOJI}')
+            # Export results
+            with open(os.path.join(output, f'combine_{combination_length}_drugs_lmax_{lmax}.json'), 'w') as f:
+                json.dump(results, f, indent=2)
+
+            click.secho(f'{EMOJI} Results exported to {output} {EMOJI}')
 
 
 def _pathway_enrichment_helper(
@@ -325,7 +349,7 @@ def _pathway_enrichment_helper(
     :param log: debug mode
     :param output: output directory
     """
-    _setup_logging(log, lmax)
+    _setup_logging(log)
 
     # Ensure file is valid
     check_graph_input(sources, targets, fmt, False)
@@ -343,35 +367,38 @@ def _pathway_enrichment_helper(
     )
 
     path_mode = "simple-paths" if simple_paths else "cycles"
-    click.secho(
-        f'{EMOJI} Pathway analysis with lmax ({lmax}) on {path_mode} mode. This might take a while... {EMOJI}',
-    )
 
-    # Track the time it takes to run
-    exe_t_0 = time.time()
-    # Call main function
-    wrapper_pathway_enrichment(
-        graph=directed_graph,
-        source_nodes=source_nodes,
-        target_nodes=targets_nodes,
-        lmax=lmax + 1,  # TODO: Fixme since enumerate_paths uses lmax + 1 (we have to now increase 1)
-        simple_paths=simple_paths,
-        output=output,
-    )
-    # Finished time
-    exe_t_f = time.time()
-    running_time = exe_t_f - exe_t_0
+    """Export results for each lmax"""
+    for lmax in _handle_lmax_parameter(lmax):
+        click.secho(
+            f'{EMOJI} Pathway analysis with lmax ({lmax}) on {path_mode} mode. This might take a while... {EMOJI}',
+        )
 
-    click.secho(f'{EMOJI} Finished in {running_time} seconds {EMOJI}')
+        # Track the time it takes to run
+        exe_t_0 = time.time()
+        # Call main function
+        wrapper_pathway_enrichment(
+            graph=directed_graph,
+            source_nodes=source_nodes,
+            target_nodes=targets_nodes,
+            lmax=lmax + 1,  # TODO: Fixme since enumerate_paths uses lmax + 1 (we have to now increase 1)
+            simple_paths=simple_paths,
+            output=output,
+        )
+        # Finished time
+        exe_t_f = time.time()
+        running_time = exe_t_f - exe_t_0
 
-    click.secho(f'{EMOJI} Results exported to {output} {EMOJI}')
+        click.secho(f'{EMOJI} Finished in {running_time} seconds {EMOJI}')
+
+        click.secho(f'{EMOJI} Results exported to {output} {EMOJI}')
 
 
-def _setup_logging(log: bool, lmax: int, process_id: int = 0) -> None:
-    """Set up logging.
+def _setup_logging(log: bool, process_id: int = 0) -> None:
+    """Setup logging.
 
     :param log: logging boolean
-    :param lmax: set lmax
+    :param process_id: process id
     """
     if process_id == 0:
         if log:
@@ -381,13 +408,6 @@ def _setup_logging(log: bool, lmax: int, process_id: int = 0) -> None:
         else:
             logging.basicConfig(level=logging.INFO)
             logger.setLevel(logging.INFO)
-
-        # Warn user if lmax larger than 12
-        if lmax > 12:
-            logger.warning(
-                f"Note that the selected Lmax '{lmax}' might converge results if your graph is not large enough"
-            )
-
     else:
         logging.getLogger('drug2ways').setLevel(logging.WARNING)
         logging.basicConfig(level=logging.WARNING)
