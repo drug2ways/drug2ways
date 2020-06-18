@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def _handle_lmax_parameter(lmax) -> Optional[List[int]]:
-    """Prepare iterable for lmax"""
+    """Prepare iterable for lmax."""
     if isinstance(lmax, int):
         return [lmax]
     elif isinstance(lmax, List):
@@ -114,7 +114,6 @@ def _explore_helper(
     :param name: name of the graph for output purposes
     :param drug_search_bel: search drugs automatically in BEL
     """
-
     """Parallelization of the calculations to improve efficiency"""
     # Initialize MPI environment and variables, if found.
     number_of_processes = 1
@@ -395,7 +394,7 @@ def _pathway_enrichment_helper(
 
 
 def _setup_logging(log: bool, process_id: int = 0) -> None:
-    """Setup logging.
+    """Set up logging.
 
     :param log: logging boolean
     :param process_id: process id
