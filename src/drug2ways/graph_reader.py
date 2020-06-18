@@ -151,6 +151,7 @@ def _read_network_file(path: str, fmt: str) -> pd.DataFrame:
         path,
         sep=FORMAT_SEPARATOR_MAPPING[CSV] if fmt == CSV else FORMAT_SEPARATOR_MAPPING[TSV],
         dtype=str,
+        usecols=['source', 'target', 'relation'],
     )
 
     if SOURCE not in df.columns or TARGET not in df.columns or RELATION not in df.columns:
@@ -193,12 +194,7 @@ def process_network(path: str, sep: str, connectivity: bool = False) -> DiGraph:
 
     graph = DiGraph()
 
-    for _, row in tqdm(df.iterrows(), total=df.shape[0], desc='Loading graph'):
-        # Get node names from data frame
-        sub_name = row[SOURCE]
-        obj_name = row[TARGET]
-        relation = row[RELATION]
-
+    for sub_name, obj_name, relation in tqdm(df.values, total=df.shape[0], desc='Loading graph'):
         # Store edge in the graph
         graph.add_edge(
             sub_name,

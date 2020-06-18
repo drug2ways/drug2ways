@@ -16,16 +16,16 @@ The two easiest format to work with drug2ways are a triple-based file represente
 The file must contain three columns: source, relation and target (order is not relevant) and the only condition is that
 the relation column contains 1 and -1 to indicate the direction of the relation (increase/decrease).
 
-+----------+---------+----------+
-| source   | relation| target   |
++----------+----------+---------+
+| source   | target   | relation|
 +==========+=========+==========+
-|  Drug1   |   -1    | Protein1 |
+|  Drug1   |Protein1 |    -1    |
 +----------+---------+----------+
-| Protein1 |    1    | Protein2 |
+| Protein1 |Protein2 |     1    |
 +----------+---------+----------+
-| Protein2 |    1    | Protein3 |
+| Protein2 |Protein3 |    -1    |
 +----------+---------+----------+
-| Protein3 |   +1    | Disease1 |
+| Protein3 |Disease1 |     1    |
 +----------+---------+----------+
 
 .. _Edge: https://networkx.github.io/documentation/stable/reference/readwrite/edgelist.html
