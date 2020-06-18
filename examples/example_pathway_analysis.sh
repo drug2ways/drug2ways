@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
+# TODO: Download the repo https://github.com/drug2ways/results
 # TODO: Set here your variables 'pkg_path' and 'output_path'
-pkg_path=/Users/danieldomingo/PycharmProjects/drug2ways
+# TODO: so pkg_path points to the cloned repo in your computer
+pkg_path=/Users/danieldomingo/PycharmProjects/results
 output_path=/Users/danieldomingo/Downloads
 
-lmin=8
+lmin=4
 lmax=8
 
 if [ "$#" -eq 1 ]; then
@@ -21,9 +23,9 @@ mkdir -p ${output_path}
 for l in `seq $lmin $lmax`; do
 	echo "Running custom network with lmax = ${l}."
 	python3 -m drug2ways pathway-analysis \
-	--graph ${pkg_path}/data/networks/data/openbiolink_network.tsv \
-	--sources ${pkg_path}/data/validation/data/source_nodes_openbiolink.tsv \
-	--targets ${pkg_path}/data/validation/data/target_nodes_openbiolink.tsv \
+	--graph ${pkg_path}/networks/data/openbiolink_network.tsv \
+	--sources ${pkg_path}/validation/data/source_nodes_openbiolink.tsv \
+	--targets ${pkg_path}/validation/data/target_nodes_openbiolink.tsv \
 	--fmt tsv \
 	--lmax ${l} \
 	--output ${output_path}
