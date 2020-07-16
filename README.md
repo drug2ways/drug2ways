@@ -139,3 +139,15 @@ git clone https://github.com/drug2ways/drug2ways.git
 cd drug2ways
 python -m pip install -e .
 ```
+
+## Requirements
+```python
+    click==7.1.1
+    tqdm==4.47.0
+    networkx>=2.1
+    pandas==1.0.3
+    networkx>=2.4
+    numpy
+    scipy
+    statsmodels
+```
