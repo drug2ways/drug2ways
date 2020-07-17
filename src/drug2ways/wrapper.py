@@ -9,7 +9,7 @@ import os
 import time
 from collections import defaultdict
 from itertools import combinations
-from typing import Any, List, Mapping, Optional
+from typing import Any, Iterable, List, Mapping, Optional
 
 from networkx import DiGraph
 from tqdm import tqdm
@@ -479,7 +479,7 @@ def wrapper_pathway_enrichment(
     simple_paths: bool,
     export: bool = True,
     output: Optional[str] = None,
-    genesets: List[List[Mapping[str, List[str]]]] = None,
+    genesets: List[Mapping[str, Iterable[str]]] = None,
 ):
     """Conduct pathway enrichment on the paths.
 
@@ -526,14 +526,14 @@ def wrapper_pathway_enrichment(
             continue
 
         # Get summarized results for export
-        summarized_results, paths_summary = analyze_paths(
+        summarized_results, paths_summary, enrichment_results = analyze_paths(
             reduced_graph=reduced_graph,
             paths=paths,
             id2node=id2node,
             genesets=genesets,
         )
 
-        results[(source_node, target_node)] = (summarized_results, paths_summary)
+        results[(source_node, target_node)] = (summarized_results, paths_summary, enrichment_results)
 
         if export:
             # export_results

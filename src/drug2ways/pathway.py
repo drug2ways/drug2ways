@@ -4,10 +4,11 @@
 
 import logging
 from collections import Counter, defaultdict
-from typing import Dict, List, Mapping
+from typing import Dict, Iterable, List, Mapping
 
 import numpy as np
 import pandas as pd
+from networkx import DiGraph
 from scipy.stats import fisher_exact
 from statsmodels.stats.multitest import multipletests
 
@@ -28,10 +29,10 @@ def _prepare_json(paths):
 
 
 def analyze_paths(
-    reduced_graph,
+    reduced_graph: DiGraph,
     paths: List[List[int]],
     id2node: Mapping[int, str],
-    genesets: List[List[Mapping[str, List[str]]]],
+    genesets: List[Mapping[str, Iterable[str]]],
     min_count: int = 0,
     min_proportion: int = 0,
 ):
@@ -100,9 +101,7 @@ def analyze_paths(
     # TODO: currently using one pathway database
     enrichment_results = pathway_enrichment(df, genesets[0])
 
-    print(enrichment_results)
-
-    return df, final_paths
+    return df, final_paths, enrichment_results
 
 
 def _sanitize_name(node, prefix):
@@ -110,9 +109,9 @@ def _sanitize_name(node, prefix):
     return node.split('(')[0].strip().replace(prefix, '')
 
 
-def pathway_enrichment(df: pd.DataFrame, geneset, prefix: str = 'ncbigene:'):
+def pathway_enrichment(df: pd.DataFrame, geneset, prefix: str = 'ncbigene:') -> pd.DataFrame:
     """Enrich pathways on each lmax."""
-    enrichment_results = {}
+    pathway_enrichment_df = pd.DataFrame()
     # Iterate over columns
     for lmax in df:
         nodes = {
@@ -121,12 +120,18 @@ def pathway_enrichment(df: pd.DataFrame, geneset, prefix: str = 'ncbigene:'):
             if pd.notna(node)
         }
 
-        enrichment_results[lmax] = perform_hypergeometric_test(
+        enrichment_for_specific_lmax = perform_hypergeometric_test(
             genes_to_test=nodes,
             pathway_dict=geneset,
         )
+        # Skip if no pathways are enriched
+        if enrichment_for_specific_lmax.empty:
+            continue
 
-    return enrichment_results
+        pathway_enrichment_df[f'enrichment_{lmax}'] = enrichment_for_specific_lmax['pathway_id']
+        pathway_enrichment_df[f'q_values_{lmax}'] = enrichment_for_specific_lmax['qval']
+
+    return pathway_enrichment_df
 
 
 def get_genesets():
@@ -211,5 +216,11 @@ def perform_hypergeometric_test(
     if apply_threshold:
         logger.debug(f'Filtering out pathways with q-values > {threshold} according to fdr_bh')
         df = df[df['qval'] < threshold]
+
+    print(df)
+    # Sort by q value and reset index
+    df.sort_values(by=['qval'], ascending=False, inplace=True)
+    df.reset_index(inplace=True)
+    print(df)
 
     return df
