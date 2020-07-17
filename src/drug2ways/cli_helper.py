@@ -14,6 +14,7 @@ from networkx import DiGraph
 from drug2ways.bel_helper import get_candidate_drugs, get_candidate_targets
 from drug2ways.constants import BEL_FORMATS, EMOJI
 from drug2ways.graph_reader import load_graph, read_nodes, read_nodes_to_optimize
+from drug2ways.pathway import get_genesets
 from drug2ways.wrapper import wrapper_explore, wrapper_optimize, wrapper_combine, wrapper_pathway_enrichment
 
 logger = logging.getLogger(__name__)
@@ -350,6 +351,9 @@ def _pathway_enrichment_helper(
     """
     _setup_logging(log)
 
+    logger.debug('Getting genesets')
+    kegg, reactome, wikipathways = get_genesets()
+
     # Ensure file is valid
     check_graph_input(sources, targets, fmt, False)
 
@@ -376,13 +380,14 @@ def _pathway_enrichment_helper(
         # Track the time it takes to run
         exe_t_0 = time.time()
         # Call main function
-        wrapper_pathway_enrichment(
+        _ = wrapper_pathway_enrichment(
             graph=directed_graph,
             source_nodes=source_nodes,
             target_nodes=targets_nodes,
             lmax=lmax + 1,  # TODO: Fixme since enumerate_paths uses lmax + 1 (we have to now increase 1)
             simple_paths=simple_paths,
             output=output,
+            genesets=[kegg, reactome, wikipathways],
         )
         # Finished time
         exe_t_f = time.time()

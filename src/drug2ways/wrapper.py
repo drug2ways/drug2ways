@@ -9,7 +9,7 @@ import os
 import time
 from collections import defaultdict
 from itertools import combinations
-from typing import List, Any, Optional
+from typing import Any, List, Mapping, Optional
 
 from networkx import DiGraph
 from tqdm import tqdm
@@ -17,7 +17,7 @@ from tqdm import tqdm
 from .alternative_graph_traversal import enumerate_paths
 from .graph_processing import generate_reduced_graph
 from .graph_traversal import compute_all_paths_multitarget_dict
-from .pathway import get_genesets, analyze_paths
+from .pathway import analyze_paths
 
 __all__ = [
     'wrapper_explore',
@@ -477,7 +477,9 @@ def wrapper_pathway_enrichment(
     target_nodes: List[Any],
     lmax: int,
     simple_paths: bool,
-    output: str,
+    export: bool = True,
+    output: Optional[str] = None,
+    genesets: List[List[Mapping[str, List[str]]]] = None,
 ):
     """Conduct pathway enrichment on the paths.
 
@@ -486,11 +488,12 @@ def wrapper_pathway_enrichment(
     :param target_nodes: iterable with target nodes (usually diseases)
     :param lmax: maximum length of the path allowed
     :param simple_paths: if true, only simple paths are calculated
+    :param output: output directory
+    :param export: export df and results
+    :param genesets: genesets
     :return: results of the pathway enrichment.
     """
     _check_generic_input(graph, source_nodes, target_nodes)
-
-    pathway_enrichment_results = defaultdict(lambda: defaultdict(dict))
 
     # Get the reduced version of the graph and the node2id mapping
     reduced_graph, node2id = generate_reduced_graph(graph, target_nodes)
@@ -502,8 +505,7 @@ def wrapper_pathway_enrichment(
 
     _target_nodes = [node2id[target_node] for target_node in target_nodes]
 
-    logger.debug('Getting genesets')
-    kegg, reactome, wikipathways = get_genesets()
+    results = {}
 
     for source_node, target_node in itt.product(source_nodes, target_nodes):
 
@@ -528,21 +530,24 @@ def wrapper_pathway_enrichment(
             reduced_graph=reduced_graph,
             paths=paths,
             id2node=id2node,
-            lmax=lmax,
-            target_id=target_id,
-            genesets=[kegg, reactome, wikipathways],
+            genesets=genesets,
         )
 
-        # export_results
-        logger.info(f'Exporting results for pair {source_node} - {target_node}')
-        # TODO Fix the lmax later
-        summarized_results.to_csv(
-            os.path.join(output, f'overview-{lmax - 1}-{source_node}_{target_node}.tsv'),
-            sep='\t',
-            index=None,
-        )
+        results[(source_node, target_node)] = (summarized_results, paths_summary)
 
-        with open(
-            os.path.join(output, f'paths-detailed{lmax - 1}-{source_node}_{target_node}.tsv'), 'w'
-        ) as file:
-            json.dump(paths_summary, file, indent=2)
+        if export:
+            # export_results
+            logger.info(f'Exporting results for pair {source_node} - {target_node}')
+            # TODO Fix the lmax later since now it is hacked
+            summarized_results.to_csv(
+                os.path.join(output, f'overview-{lmax - 1}-{source_node}_{target_node}.tsv'),
+                sep='\t',
+                index=None,
+            )
+
+            with open(
+                os.path.join(output, f'paths-detailed{lmax - 1}-{source_node}_{target_node}.tsv'), 'w'
+            ) as file:
+                json.dump(paths_summary, file, indent=2)
+
+    return results

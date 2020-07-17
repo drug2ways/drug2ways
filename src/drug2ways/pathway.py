@@ -31,18 +31,15 @@ def analyze_paths(
     reduced_graph,
     paths: List[List[int]],
     id2node: Mapping[int, str],
-    lmax: int,
-    target_id: int,
-    genesets: List[Mapping[str, List[str]]],
+    genesets: List[List[Mapping[str, List[str]]]],
     min_count: int = 0,
     min_proportion: int = 0,
 ):
     """Analyze paths.
 
+    :param reduced_graph: graph
     :param paths: paths
     :param id2node: mapping between ids and node names
-    :param lmax: lmax
-    :param target_id: id of the target
     :param genesets: pathway genesets
     :param min_count: minimum number of times at a given lmax
     :param min_proportion: minimum proportion of that node based on the total
@@ -100,8 +97,10 @@ def analyze_paths(
             # Threshold on absolute count and proportion
         ])
 
-    # TODO: Change and all 3 databases
-    # enrichment_results  = pathway_enrichment(df, genesets[0])
+    # TODO: currently using one pathway database
+    enrichment_results = pathway_enrichment(df, genesets[0])
+
+    print(enrichment_results)
 
     return df, final_paths
 
@@ -111,7 +110,7 @@ def _sanitize_name(node, prefix):
     return node.split('(')[0].strip().replace(prefix, '')
 
 
-def pathway_enrichment(df: pd.DataFrame, geneset, prefix: str = 'NCBIGENE:'):
+def pathway_enrichment(df: pd.DataFrame, geneset, prefix: str = 'ncbigene:'):
     """Enrich pathways on each lmax."""
     enrichment_results = {}
     # Iterate over columns
