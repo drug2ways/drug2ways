@@ -217,10 +217,8 @@ def perform_hypergeometric_test(
         logger.debug(f'Filtering out pathways with q-values > {threshold} according to fdr_bh')
         df = df[df['qval'] < threshold]
 
-    print(df)
     # Sort by q value and reset index
     df.sort_values(by=['qval'], ascending=False, inplace=True)
     df.reset_index(inplace=True)
-    print(df)
 
     return df
