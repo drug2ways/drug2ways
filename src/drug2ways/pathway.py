@@ -85,18 +85,28 @@ def analyze_paths(
 
     final_paths = _prepare_json(final_paths)
 
-    df = pd.DataFrame()
+    df_dict = {}
 
     for lmax, counter in results.items():
+
         # Total number of nodes (incl. duplicates) on that path position
         total = sum(counter.values())
 
-        df.loc[:, lmax] = pd.Series([
+        sorted_most_common_nodes = [
             f"{node} ({count})"
             for node, count in counter.most_common()
             if count > min_count and (count * 100) / total > min_proportion
             # Threshold on absolute count and proportion
-        ])
+        ]
+
+        df_dict[lmax] = sorted_most_common_nodes
+
+    # Convert dict to pandas datafrae
+    df = pd.DataFrame({
+        key: pd.Series(list(values))
+        for key, values in df_dict.items()
+    })
+    df.fillna('', inplace=True)
 
     # TODO: currently using one pathway database
     enrichment_results = pathway_enrichment(df, genesets[0])
