@@ -122,7 +122,7 @@ def pathway_enrichment(df: pd.DataFrame, geneset, prefix: str = 'ncbigene:') -> 
     # Iterate over columns
     for lmax_column in df:
         # Skip the columns with a count
-        if lmax_column.starswith('count_'):
+        if str(lmax_column).startswith('count_'):
             continue
 
         nodes = {
