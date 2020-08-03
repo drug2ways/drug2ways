@@ -25,6 +25,7 @@ Installation is as easy as getting the code from `PyPI <https://pypi.python.org/
 
    installation
    formats
+   api
    cli
    algorithm
    constants
