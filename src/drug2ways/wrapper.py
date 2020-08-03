@@ -479,7 +479,7 @@ def wrapper_pathway_enrichment(
     simple_paths: bool,
     export: bool = True,
     output: Optional[str] = None,
-    genesets: List[Mapping[str, Iterable[str]]] = None,
+    genesets: Mapping[str, Iterable[str]] = None,
 ):
     """Conduct pathway enrichment on the paths.
 

@@ -32,7 +32,7 @@ def analyze_paths(
     reduced_graph: DiGraph,
     paths: List[List[int]],
     id2node: Mapping[int, str],
-    genesets: List[Mapping[str, Iterable[str]]],
+    genesets: Mapping[str, Iterable[str]],
     min_count: int = 0,
     min_proportion: int = 0,
 ):
@@ -92,14 +92,16 @@ def analyze_paths(
         # Total number of nodes (incl. duplicates) on that path position
         total = sum(counter.values())
 
-        sorted_most_common_nodes = [
-            f"{node} ({count})"
+        # Zip list of tuples into two lists keeping the same order
+        sorted_most_common_nodes, sorted_count = map(list, zip(*[
+            (node, count)
             for node, count in counter.most_common()
             if count > min_count and (count * 100) / total > min_proportion
             # Threshold on absolute count and proportion
-        ]
+        ]))
 
         df_dict[lmax] = sorted_most_common_nodes
+        df_dict[f'count_{lmax}'] = sorted_count
 
     # Convert dict to pandas datafrae
     df = pd.DataFrame({
@@ -108,25 +110,24 @@ def analyze_paths(
     })
     df.fillna('', inplace=True)
 
-    # TODO: currently using one pathway database
-    enrichment_results = pathway_enrichment(df, genesets[0])
+    enrichment_results = pathway_enrichment(df, genesets)
 
     return df, final_paths, enrichment_results
-
-
-def _sanitize_name(node, prefix):
-    """Sanitize name."""
-    return node.split('(')[0].strip().replace(prefix, '')
 
 
 def pathway_enrichment(df: pd.DataFrame, geneset, prefix: str = 'ncbigene:') -> pd.DataFrame:
     """Enrich pathways on each lmax."""
     pathway_enrichment_df = pd.DataFrame()
+
     # Iterate over columns
-    for lmax in df:
+    for lmax_column in df:
+        # Skip the columns with a count
+        if lmax_column.starswith('count_'):
+            continue
+
         nodes = {
-            _sanitize_name(node, prefix)
-            for node in df[lmax]
+            node.replace(prefix, '')
+            for node in df[lmax_column]
             if pd.notna(node)
         }
 
@@ -138,8 +139,8 @@ def pathway_enrichment(df: pd.DataFrame, geneset, prefix: str = 'ncbigene:') -> 
         if enrichment_for_specific_lmax.empty:
             continue
 
-        pathway_enrichment_df[f'enrichment_{lmax}'] = enrichment_for_specific_lmax['pathway_id']
-        pathway_enrichment_df[f'q_values_{lmax}'] = enrichment_for_specific_lmax['qval']
+        pathway_enrichment_df[f'enrichment_{lmax_column}'] = enrichment_for_specific_lmax['pathway_id']
+        pathway_enrichment_df[f'q_values_{lmax_column}'] = enrichment_for_specific_lmax['qval']
 
     return pathway_enrichment_df
 
@@ -161,7 +162,8 @@ def parse_gmt_file(gmt_file: str, min_size=3, max_size=3000) -> Dict[str, List]:
             for line in file.readlines()
         }
     return {
-        k: v for k, v in geneset_dict.items() if len(v) >= min_size and len(v) <= max_size
+        k: v for k, v in geneset_dict.items()
+        if min_size <= len(v) <= max_size
     }
 
 

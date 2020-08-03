@@ -387,7 +387,7 @@ def _pathway_enrichment_helper(
             lmax=lmax + 1,  # TODO: Fixme since enumerate_paths uses lmax + 1 (we have to now increase 1)
             simple_paths=simple_paths,
             output=output,
-            genesets=[kegg, reactome, wikipathways],
+            genesets={**kegg, **reactome, **wikipathways},
         )
         # Finished time
         exe_t_f = time.time()
