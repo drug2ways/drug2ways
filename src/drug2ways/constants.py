@@ -19,9 +19,9 @@ KEGG_GENESETS = os.path.join(DEFAULT_DRUG2WAYS_DIR, 'kegg.tsv')
 REACTOME_GENESETS = os.path.join(DEFAULT_DRUG2WAYS_DIR, 'reactome.tsv')
 WIKIPATHWAYS_GENESETS = os.path.join(DEFAULT_DRUG2WAYS_DIR, 'wp.tsv')
 
-KEGG_GENESETS_URL = 'https://raw.githubusercontent.com/pathwayforte/pathway-forte/master/data/gmt_files/kegg_geneset_final.gmt'
-REACTOME_GENESETS_URL = 'https://raw.githubusercontent.com/pathwayforte/pathway-forte/master/data/gmt_files/reactome_geneset_final.gmt'
-WIKIPATHWAYS_GENESETS_URL = 'https://raw.githubusercontent.com/pathwayforte/pathway-forte/master/data/gmt_files/wikipathways_geneset_final.gmt'
+KEGG_GENESETS_URL = 'https://raw.githubusercontent.com/pathwayforte/pathway-forte/master/data/gmt_files/kegg.gmt'
+REACTOME_GENESETS_URL = 'https://raw.githubusercontent.com/pathwayforte/pathway-forte/master/data/gmt_files/reactome.gmt'
+WIKIPATHWAYS_GENESETS_URL = 'https://raw.githubusercontent.com/pathwayforte/pathway-forte/master/data/gmt_files/wikipathways.gmt'
 
 
 def ensure_genesets():
