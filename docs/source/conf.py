@@ -21,7 +21,7 @@ project = 'drug2ways'
 copyright = '2020, Daniel Rivas Barragan and Daniel Domingo-Fernandez'
 author = 'Daniel Rivas Barragan and Daniel Domingo-Fernandez'
 
-release = '0.0.8-dev'
+release = '0.0.8'
 
 parsed_version = re.match(
     '(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)(?:-(?P<release>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+(?P<build>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?',
