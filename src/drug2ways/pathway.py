@@ -16,6 +16,12 @@ from .constants import KEGG_GENESETS, REACTOME_GENESETS, WIKIPATHWAYS_GENESETS
 
 logger = logging.getLogger(__name__)
 
+PATHWAY_PREFIXES = {
+    'kegg': 'hsa',
+    'reactome': 'R-HSA',
+    'wikipathways': 'WP',
+}
+
 
 def _prepare_json(paths):
     """Prepare json."""
@@ -88,7 +94,6 @@ def analyze_paths(
     df_dict = {}
 
     for lmax, counter in results.items():
-
         # Total number of nodes (incl. duplicates) on that path position
         total = sum(counter.values())
 
@@ -139,7 +144,8 @@ def pathway_enrichment(df: pd.DataFrame, geneset, prefix: str = 'ncbigene:') -> 
         if enrichment_for_specific_lmax.empty:
             continue
 
-        pathway_enrichment_df[f'enrichment_{lmax_column}'] = enrichment_for_specific_lmax['pathway_id']
+        pathway_enrichment_df[f'database_{lmax_column}'] = enrichment_for_specific_lmax['database']
+        pathway_enrichment_df[f'pathway_id_{lmax_column}'] = enrichment_for_specific_lmax['pathway_id']
         pathway_enrichment_df[f'q_values_{lmax_column}'] = enrichment_for_specific_lmax['qval']
 
     return pathway_enrichment_df
@@ -214,14 +220,28 @@ def perform_hypergeometric_test(
     :param threshold: significance threshold (by default 0.05)
     """
     rows = []
+
     for pathway_id, pathway_gene_set in pathway_dict.items():
         # Prepare the test table to conduct the fisher test
         test_table = _prepare_hypergeometric_test(genes_to_test, pathway_gene_set, gene_universe)
         # Calculate fisher test (returns tuple of odds ratio and p_value
         p_value = fisher_exact(test_table, alternative='greater')[1]
-        rows.append((pathway_id, p_value))
 
-    df = pd.DataFrame(rows, columns=['pathway_id', 'pval'])
+        database = [
+            db_name
+            for db_name, prefix in PATHWAY_PREFIXES.items()
+            if pathway_id.startswith(prefix)
+        ]
+
+        rows.append(
+            (
+                database[0] if database else 'unknown',
+                pathway_id,
+                p_value,
+            )
+        )
+
+    df = pd.DataFrame(rows, columns=['database', 'pathway_id', 'pval'])
     correction_test = multipletests(df.pval, method='fdr_bh')
     df['qval'] = correction_test[1]
 
