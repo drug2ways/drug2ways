@@ -6,14 +6,16 @@ import logging
 import os
 from urllib.request import urlretrieve
 
+import pystow
+
 logger = logging.getLogger(__name__)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 SOURCE_DIR = os.path.join(os.path.abspath(os.path.join(dir_path, os.pardir)))
 ROOT_DIR = os.path.join(os.path.abspath(os.path.join(SOURCE_DIR, os.pardir)))
 
-#: Default drug2ways directory
-DEFAULT_DRUG2WAYS_DIR = os.path.join(os.path.expanduser('~'), '.drug2ways')
+#: Default drug2ways directory using PyStow
+DEFAULT_DRUG2WAYS_DIR = pystow.get('drug2ways')
 
 KEGG_GENESETS = os.path.join(DEFAULT_DRUG2WAYS_DIR, 'kegg.tsv')
 REACTOME_GENESETS = os.path.join(DEFAULT_DRUG2WAYS_DIR, 'reactome.tsv')
@@ -39,11 +41,6 @@ RESOURCES_DIR = os.path.join(ROOT_DIR, 'graphs')
 RESULTS_DIR = os.path.join(ROOT_DIR, 'results')
 
 
-def ensure_output_dirs():
-    """Ensure that the output directories exists."""
-    os.makedirs(DEFAULT_DRUG2WAYS_DIR, exist_ok=True)
-
-
 def download_pathway(url: str, export_path: str) -> None:
     """Make a function that downloads the data for you, or uses a cached version at the given path.
 
@@ -52,8 +49,6 @@ def download_pathway(url: str, export_path: str) -> None:
     """
     urlretrieve(url, export_path)  # noqa: S310
 
-
-ensure_output_dirs()
 
 """Available formats"""
 
