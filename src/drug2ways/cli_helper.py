@@ -466,10 +466,10 @@ def _validation_helper(
     ])
 
     # Export subgraph as a viz
-    _export_graph_viz(mechanism_of_action_subgraph)
+    # _export_graph_viz(mechanism_of_action_subgraph)
 
     # run pathway analysis
-    run_pathway_analysis(mechanism_of_action_subgraph)
+    # run_pathway_analysis(mechanism_of_action_subgraph)
 
     # export results
 

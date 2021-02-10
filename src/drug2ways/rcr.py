@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Rever causal reasoning on drug2ways."""
+"""Reverse causal reasoning on drug2ways."""
 
 import logging
 from itertools import tee
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def pairwise(iterable):
+    """Pairwise iteration."""
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
     a, b = tee(iterable)
     next(b, None)
@@ -92,6 +93,7 @@ def evaluate_data_network_overlap(
     graph: DiGraph,
     data_dictionary: Dict[str, int],
 ):
+    """Check overlap."""
     node_names = set(graph.nodes())
     data_names = set(data_dictionary.keys())
 
