@@ -24,6 +24,7 @@ __all__ = [
     'wrapper_optimize',
     'wrapper_combine',
     'wrapper_pathway_enrichment',
+    'get_all_paths_validation',
 ]
 
 logger = logging.getLogger(__name__)
@@ -551,3 +552,48 @@ def wrapper_pathway_enrichment(
                 json.dump(paths_summary, file, indent=2)
 
     return results
+
+
+def get_all_paths_validation(
+    graph: DiGraph,
+    source: str,
+    target: str,
+    lmax: int,
+    simple_paths: bool,
+):
+    """Get all paths between source and target.
+
+    :param graph: directed graph
+    :param source_nodes: iterable with sources nodes (usually drugs)
+    :param target_nodes: iterable with target nodes (usually diseases)
+    :param lmax: maximum length of the path allowed
+    :param simple_paths: if true, only simple paths are calculated
+    :return: all paths between the source and target
+    """
+    _check_generic_input(graph, [source], [target])
+
+    # Get the reduced version of the graph and the node2id mapping
+    reduced_graph, node2id = generate_reduced_graph(graph, [target])
+
+    id2node = {
+        v: k
+        for k, v in node2id.items()
+    }
+
+    # Calculate all paths between source and target
+    all_paths = enumerate_paths(
+        graph=reduced_graph,
+        source=node2id[source],
+        targets=[node2id[target]],
+        lmax=lmax,
+        cycle_free=simple_paths,
+    )
+
+    # revert the node ids to names for simplicity
+    return [
+        [
+            id2node[node]
+            for node in path
+        ]
+        for path in all_paths
+    ]

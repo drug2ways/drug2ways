@@ -41,6 +41,11 @@ RESOURCES_DIR = os.path.join(ROOT_DIR, 'graphs')
 RESULTS_DIR = os.path.join(ROOT_DIR, 'results')
 
 
+def ensure_output_dirs():
+    """Ensure that the output directories exists."""
+    os.makedirs(DEFAULT_DRUG2WAYS_DIR, exist_ok=True)
+
+
 def download_pathway(url: str, export_path: str) -> None:
     """Make a function that downloads the data for you, or uses a cached version at the given path.
 
@@ -49,6 +54,8 @@ def download_pathway(url: str, export_path: str) -> None:
     """
     urlretrieve(url, export_path)  # noqa: S310
 
+
+ensure_output_dirs()
 
 """Available formats"""
 

@@ -6,7 +6,13 @@ import logging
 
 import click
 
-from drug2ways.cli_helper import _explore_helper, _optimize_helper, _combine_helper, _pathway_enrichment_helper
+from drug2ways.cli_helper import (
+    _explore_helper,
+    _optimize_helper,
+    _validation_helper,
+    _combine_helper,
+    _pathway_enrichment_helper,
+)
 from .constants import DEFAULT_DRUG2WAYS_DIR, FORMATS, ensure_genesets
 
 logger = logging.getLogger(__name__)
@@ -231,4 +237,51 @@ def pathway_analysis(
         simple_paths=simple,
         log=log,
         output=output,
+    )
+
+
+@input_graph_option
+@input_format_option
+@click.option(
+    '-t', '--target',
+    help='Name of the drug to be used as source',
+    type=str,
+)
+@click.option(
+    '-t', '--target',
+    help='Name of the drug to be used as target',
+    type=str,
+)
+@lmax_option
+@simple_option
+@output_option
+@name_option
+@log_option
+@main.command()
+def validate_with_data(
+    graph: str,
+    fmt: str,
+    source: str,
+    target: str,
+    lmax: int,
+    simple: bool,
+    output: str,
+    drug_data: str,
+    disease_data: str,
+    name: str,
+    log: bool = None,
+):
+    """Run validation with RCR for a given network and experimental data."""
+    _validation_helper(
+        graph=graph,
+        fmt=fmt,
+        source=source,
+        target=target,
+        lmax=lmax,
+        simple_paths=simple,
+        output=output,
+        drug_data=drug_data,
+        disease_data=disease_data,
+        log=log,
+        name=name,
     )

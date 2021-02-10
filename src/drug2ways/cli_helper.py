@@ -14,8 +14,15 @@ from networkx import DiGraph
 from drug2ways.bel_helper import get_candidate_drugs, get_candidate_targets
 from drug2ways.constants import BEL_FORMATS, EMOJI
 from drug2ways.graph_reader import load_graph, read_nodes, read_nodes_to_optimize
+from drug2ways.rcr import evaluate_data_network_overlap, rcr_all_paths, validate_paths_with_disease_data
 from drug2ways.pathway import get_genesets
-from drug2ways.wrapper import wrapper_explore, wrapper_optimize, wrapper_combine, wrapper_pathway_enrichment
+from drug2ways.wrapper import (
+    get_all_paths_validation,
+    wrapper_explore,
+    wrapper_optimize,
+    wrapper_combine,
+    wrapper_pathway_enrichment,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -396,6 +403,75 @@ def _pathway_enrichment_helper(
         click.secho(f'{EMOJI} Finished in {running_time} seconds {EMOJI}')
 
         click.secho(f'{EMOJI} Results exported to {output} {EMOJI}')
+
+
+def _validation_helper(
+    graph: str,
+    fmt: str,
+    source: str,
+    target: str,
+    lmax: int,
+    simple_paths: bool,
+    output: str,
+    drug_data: str,
+    disease_data: str,
+    log: bool,
+    name: str,
+) -> None:
+    """Wrap explore command in cli.
+
+    :param graph: path to the graph
+    :param fmt: graph format
+    :param source: path to the source nodes
+    :param target: path to the target nodes
+    :param lmax: max length of path
+    :param simple_paths: use simple paths or cycles
+    :param output: output folder
+    :param drug_data: drug experimental data
+    :param disease_data: disease experimental data
+    :param log: debug mode
+    :param output: output directory
+    :param name: name of the graph for output purposes
+    """
+    _setup_logging(log)
+
+    # Load graph
+    directed_graph: DiGraph = load_graph(graph, fmt)
+
+    drug_dict = ...
+    disease_dict = ...
+
+    # Check what's the overlap between each dataset and the nodes in the network
+    evaluate_data_network_overlap(directed_graph, drug_dict)
+    evaluate_data_network_overlap(directed_graph, disease_dict)
+
+    # Get all paths between source and targets
+    all_paths = get_all_paths_validation(directed_graph, source, target, lmax, simple_paths)
+
+    # Get paths which paths are concordant with the drug_dict through all the length
+    filtered_paths = rcr_all_paths(directed_graph, all_paths, drug_dict)
+
+    # for each path, check that the values for each node in both dictionaries are the opposite
+    validate_paths = validate_paths_with_disease_data(
+        paths=filtered_paths,
+        drug_dict=drug_dict,
+        disease_dict=disease_dict
+    )
+
+    # Using the paths and the original network we induce the subgraph to visualize it later
+    mechanism_of_action_subgraph = directed_graph.subgraph([
+        node
+        for path in validate_paths
+        for node in path
+    ])
+
+    # Export subgraph as a viz
+    _export_graph_viz(mechanism_of_action_subgraph)
+
+    # run pathway analysis
+    run_pathway_analysis(mechanism_of_action_subgraph)
+
+    # export results
 
 
 def _setup_logging(log: bool, process_id: int = 0) -> None:
