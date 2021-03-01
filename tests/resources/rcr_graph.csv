@@ -1,0 +1,6 @@
+source,target,polarity
+a,b,1
+b,d,1
+d,e,-1
+a,c,1
+c,e,1

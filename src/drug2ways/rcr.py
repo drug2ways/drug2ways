@@ -4,7 +4,7 @@
 
 import logging
 from itertools import tee
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from networkx import DiGraph
 
@@ -19,8 +19,19 @@ def pairwise(iterable):
     return zip(a, b)
 
 
-def rcr_all_paths(graph: DiGraph, all_paths: List[List], drug_dict: Dict[str, int]) -> List[Any]:
-    """Conduct causal reasoning on the paths between drug and disease based on drug experimental data."""
+def rcr_all_paths(
+    graph: DiGraph,
+    all_paths: List[List],
+    drug_dict: Dict[str, int],
+    errors_allowed: int = 0
+) -> List[Any]:
+    """Conduct causal reasoning on the paths between drug and disease based on drug experimental data.
+
+    :param graph: original directed graph
+    :param all_paths: all paths to evaluate
+    :param drug_dict: dictionary with the fold changes from the drug experiment
+    :param errors_allowed: errors allowed in the path
+    """
     valid_paths = []
 
     for path in all_paths:
@@ -33,7 +44,7 @@ def rcr_all_paths(graph: DiGraph, all_paths: List[List], drug_dict: Dict[str, in
         if not all(node in drug_dict for node in path[1:]):
             continue
 
-        if not _is_concordant(graph, path, drug_dict):
+        if not _is_concordant(graph, path, drug_dict, errors_allowed):
             continue
 
         valid_paths.append(path)
@@ -41,52 +52,103 @@ def rcr_all_paths(graph: DiGraph, all_paths: List[List], drug_dict: Dict[str, in
     return valid_paths
 
 
-def _is_concordant(graph: DiGraph, path: List[str], drug_dict: Dict[str, int]) -> bool:
+def _is_concordant(
+    graph: DiGraph,
+    path: List[str],
+    drug_dict: Dict[str, int],
+    errors_allowed: int = 0
+) -> bool:
     """Calculate if the path is concordant.
 
     :param graph: original directed graph
     :param path: path to evaluate
     :param drug_dict: dictionary with the fold changes from the drug experiment
+    :param errors_allowed: errors allowed in the path
     :return: boolean with the result
     """
     # Calculate the current score
     current_polarity = 1
+    # number of errors during evaluation
+    current_errors = 0
+
     for source, target in pairwise(path):
+
         # Update polarity
         current_polarity = current_polarity * graph.edges[source, target]['polarity']
 
         target_score = drug_dict[target]
 
         if current_polarity != target_score:
-            return False
+            # max errors allowed reached
+            if current_errors == errors_allowed:
+                return False
+            # allow for one more error
+            current_errors += 1
 
     return True
 
 
 def validate_paths_with_disease_data(
-    paths: List[str],
+    paths: List[List[str]],
     drug_dict: Dict[str, int],
     disease_dict: Dict[str, int],
+    errors_allowed: int = 0
 ) -> List[Any]:
     """Validate paths with disease data.
 
     :param paths: validated paths
     :param drug_dict: path to evaluate
     :param disease_dict: dictionary with the fold changes from the drug experiment
+    :param errors_allowed: errors allowed in the path
     :return: boolean with the result
     """
-    # Calculate the current score
+    # valid paths
     filtered_paths = []
-    for path in paths:
-        for node in path[1:]:
 
-            # Evaluate
-            if drug_dict[node] == disease_dict[node]:
-                continue
+    # check that nodes in paths have the opposite expression in drug and disease
+    for path in paths:
+        result = _evaluate_opposite_expression(
+            path,
+            disease_dict,
+            drug_dict,
+            errors_allowed
+        )
+
+        if not result:
+            continue
 
         filtered_paths.append(path)
 
     return filtered_paths
+
+
+def _evaluate_opposite_expression(
+    path: List[str],
+    drug_dict: Dict[str, int],
+    disease_dict: Dict[str, int],
+    errors_allowed: int = 0
+) -> bool:
+    """Evaluate opposite expression on a single path.
+
+    :param path: path to evaluate
+    :param drug_dict: path to evaluate
+    :param disease_dict: dictionary with the fold changes from the drug experiment
+    :param errors_allowed: errors allowed in the path
+    :return: boolean with the result
+    """
+    current_errors = 0
+    # Disease node at the end of the path has already been removed
+    for node in path[1:]:
+
+        if drug_dict[node] == disease_dict[node]:
+
+            # max errors allowed reached
+            if current_errors == errors_allowed:
+                return False
+            # allow for one more error
+            current_errors += 1
+
+    return True
 
 
 def evaluate_data_network_overlap(
