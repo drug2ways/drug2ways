@@ -86,7 +86,7 @@ class TestRcr(unittest.TestCase):
         disease_dict = {'b': -1, 'd': 1, 'c': -1}
         drug_dict = {'b': 1, 'd': 1, 'c': 1}
 
-        paths = [['a', 'b', 'd', 'e'], ['a', 'c', 'e']]
+        paths = [['a', 'b', 'd'], ['a', 'c']]
 
         valid_paths = validate_paths_with_disease_data(
             paths=paths,
@@ -97,6 +97,26 @@ class TestRcr(unittest.TestCase):
         self.assertEqual(
             valid_paths,
             [['a', 'c']]
+        )
+
+    def test_validate_paths_with_errors(self):
+        """Test for validated paths with errors allowed."""
+
+        disease_dict = {'b': -1, 'd': 1, 'c': -1}
+        drug_dict = {'b': 1, 'd': 1, 'c': 1}
+
+        paths = [['a', 'b', 'd'], ['a', 'c']]
+
+        valid_paths = validate_paths_with_disease_data(
+            paths=paths,
+            drug_dict=drug_dict,
+            disease_dict=disease_dict,
+            errors_allowed=1
+        )
+
+        self.assertEqual(
+            valid_paths,
+            [['a', 'b', 'd'], ['a', 'c']]
         )
 
 
