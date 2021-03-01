@@ -119,4 +119,58 @@ class TestRcr(unittest.TestCase):
             [['a', 'b', 'd'], ['a', 'c']]
         )
 
+    def test_rcr_pipeline(self):
+        """Test rcr pipeline."""
 
+        drug_dict = {'b': 1, 'd': 1, 'c': 1}
+        disease_dict = {'b': -1, 'd': 1, 'c': -1}
+
+        paths = [['a', 'b', 'd', 'e'], ['a', 'c', 'e']]
+
+        directed_graph = self.create_graph()
+
+        filtered_paths = rcr_all_paths(
+            graph=directed_graph,
+            all_paths=paths,
+            drug_dict=drug_dict
+        )
+
+        valid_paths = validate_paths_with_disease_data(
+            paths=filtered_paths,
+            drug_dict=drug_dict,
+            disease_dict=disease_dict,
+        )
+
+        self.assertEqual(
+            valid_paths,
+            [['a', 'c']]
+        )
+
+    def test_rcr_pipeline_with_errors(self):
+        """Test rcr pipeline with error allowed."""
+
+        drug_dict = {'b': 1, 'd': 1, 'c': -1}
+        disease_dict = {'b': -1, 'd': 1, 'c': -1}
+
+        paths = [['a', 'b', 'd', 'e'], ['a', 'c', 'e']]
+
+        directed_graph = self.create_graph()
+
+        filtered_paths = rcr_all_paths(
+            graph=directed_graph,
+            all_paths=paths,
+            drug_dict=drug_dict,
+            errors_allowed=1
+        )
+
+        valid_paths = validate_paths_with_disease_data(
+            paths=filtered_paths,
+            drug_dict=drug_dict,
+            disease_dict=disease_dict,
+            errors_allowed=1
+        )
+
+        self.assertEqual(
+            valid_paths,
+            [['a', 'b', 'd'], ['a', 'c']]
+        )
