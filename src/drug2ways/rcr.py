@@ -140,7 +140,7 @@ def _evaluate_opposite_expression(
     # Disease node at the end of the path has already been removed
     for node in path[1:]:
 
-        if drug_dict[node] != disease_dict[node]:
+        if drug_dict[node] == disease_dict[node]:
 
             # max errors allowed reached
             if current_errors == errors_allowed:
