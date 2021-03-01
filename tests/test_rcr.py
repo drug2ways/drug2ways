@@ -20,7 +20,7 @@ class TestRcr(unittest.TestCase):
     """RCR method test."""
 
     def create_graph(self):
-        """Method to create graph. """
+        """Create example graph."""
         df = pd.read_csv(RCR_GRAPH_EXAMPE)
 
         graph = DiGraph()
@@ -35,8 +35,7 @@ class TestRcr(unittest.TestCase):
         return graph
 
     def test_rcr_paths(self):
-        """Test rcr method. """
-
+        """Test rcr method."""
         '''
             |--> B --> D --| |
         A - |                | - E
@@ -61,8 +60,7 @@ class TestRcr(unittest.TestCase):
         )
 
     def test_rcr_paths_with_errors(self):
-        """Test rcr method with error allowed. """
-
+        """Test rcr method with error allowed."""
         drug_dict = {'b': 1, 'd': 1, 'c': -1}
 
         paths = [['a', 'b', 'd', 'e'], ['a', 'c', 'e']]
@@ -82,8 +80,7 @@ class TestRcr(unittest.TestCase):
         )
 
     def test_validated_paths(self):
-        """Test for validated paths. """
-
+        """Test for validated paths."""
         disease_dict = {'b': -1, 'd': 1, 'c': -1}
         drug_dict = {'b': 1, 'd': 1, 'c': 1}
 
@@ -101,8 +98,7 @@ class TestRcr(unittest.TestCase):
         )
 
     def test_validate_paths_with_errors(self):
-        """Test for validated paths with errors allowed. """
-
+        """Test for validated paths with errors allowed."""
         disease_dict = {'b': -1, 'd': 1, 'c': -1}
         drug_dict = {'b': 1, 'd': 1, 'c': 1}
 
@@ -121,8 +117,7 @@ class TestRcr(unittest.TestCase):
         )
 
     def test_rcr_pipeline(self):
-        """Test rcr pipeline. """
-
+        """Test rcr pipeline."""
         drug_dict = {'b': 1, 'd': 1, 'c': 1}
         disease_dict = {'b': -1, 'd': 1, 'c': -1}
 
@@ -148,8 +143,7 @@ class TestRcr(unittest.TestCase):
         )
 
     def test_rcr_pipeline_with_errors(self):
-        """Test rcr pipeline with error allowed. """
-
+        """Test rcr pipeline with error allowed."""
         drug_dict = {'b': 1, 'd': 1, 'c': -1}
         disease_dict = {'b': -1, 'd': 1, 'c': -1}
 
