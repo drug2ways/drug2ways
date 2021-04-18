@@ -228,7 +228,7 @@ def _is_not_concordant(
         # Update polarity
         current_polarity = current_polarity * graph.edges[source, target]['polarity']
 
-        target_score = drug_dict[target]
+        target_score = disease_dict[target]
 
         if current_polarity == target_score:
             # max errors allowed reached
