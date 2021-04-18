@@ -169,3 +169,72 @@ def evaluate_data_network_overlap(
         f'Number of genes/proteins measured in the dataset: {len(data_names)}'
         f'Overlap between data and network: {len(overlap)}'
     )
+
+
+def disease_rcr_all_paths(
+    graph: DiGraph,
+    all_paths: List[List],
+    disease_dict: Dict[str, int],
+    errors_allowed: int = 0
+) -> List[Any]:
+    """Conduct causal reasoning on the paths between drug and disease based on disease experimental data.
+
+    :param graph: original directed graph
+    :param all_paths: all paths to evaluate
+    :param disease_dict: dictionary with the fold changes from the disease experiment
+    :param errors_allowed: errors allowed in the path
+    """
+    valid_paths = []
+
+    for path in all_paths:
+
+        # remove the last node since it is the disease and it doesnt have any experimental value
+        path = path[:-1]
+
+        # Skip path if not all nodes are present in experimental data
+        # First node is not considered since it corresponds to the drug which doesnt have experimental value
+        if not all(node in disease_dict for node in path[1:]):
+            continue
+
+        if not _is_not_concordant(graph, path, disease_dict, errors_allowed):
+            continue
+
+        valid_paths.append(path)
+
+    return valid_paths
+
+
+def _is_not_concordant(
+    graph: DiGraph,
+    path: List[str],
+    disease_dict: Dict[str, int],
+    errors_allowed: int = 0
+) -> bool:
+    """Calculate if the path is concordant.
+
+    :param graph: original directed graph
+    :param path: path to evaluate
+    :param disease_dict: dictionary with the fold changes from the disease experiment
+    :param errors_allowed: errors allowed in the path
+    :return: boolean with the result
+    """
+    # Calculate the current score
+    current_polarity = 1
+    # number of errors during evaluation
+    current_errors = 0
+
+    for source, target in pairwise(path):
+
+        # Update polarity
+        current_polarity = current_polarity * graph.edges[source, target]['polarity']
+
+        target_score = drug_dict[target]
+
+        if current_polarity == target_score:
+            # max errors allowed reached
+            if current_errors == errors_allowed:
+                return False
+            # allow for one more error
+            current_errors += 1
+
+    return True
