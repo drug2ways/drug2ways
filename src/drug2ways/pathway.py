@@ -179,7 +179,7 @@ def analyze_paths_with_intermediates(
             continue
 
         for node in path_reconstructed:
-            if node in path_reconstructed:
+            if node in intermediate_nodes:
                 nodes_present.add(node)
 
         final_paths.add(path_reconstructed)
