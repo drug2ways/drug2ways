@@ -17,7 +17,7 @@ from tqdm import tqdm
 from .alternative_graph_traversal import enumerate_paths
 from .graph_processing import generate_reduced_graph
 from .graph_traversal import compute_all_paths_multitarget_dict
-from .pathway import analyze_paths
+from .pathway import analyze_paths, analyze_paths_with_intermediates
 
 __all__ = [
     'wrapper_explore',
@@ -534,9 +534,12 @@ def wrapper_pathway_enrichment(
             genesets=genesets,
         )
 
+        if summarized_results is None:
+            continue
+
         results[(source_node, target_node)] = (summarized_results, paths_summary, enrichment_results)
 
-        if export:
+        if export and summarized_results:
             # export_results
             logger.info(f'Exporting results for pair {source_node} - {target_node}')
             # TODO Fix the lmax later since now it is hacked
@@ -550,6 +553,69 @@ def wrapper_pathway_enrichment(
                 os.path.join(output, f'paths-detailed{lmax - 1}-{source_node}_{target_node}.tsv'), 'w'
             ) as file:
                 json.dump(paths_summary, file, indent=2)
+
+    return results
+
+
+def wrapper_intermediates_nodes(
+    reduced_graph: DiGraph,
+    intermediate_nodes: List[str],
+    node2id: Mapping[int, str],
+    source_nodes: List[Any],
+    target_nodes: List[Any],
+    lmax: int,
+    simple_paths: bool,
+):
+    """Identify intermediate paths.
+
+    :param reduced_graph: directed graph
+    :param node2id: dict nodes to ids
+    :param intermediate_nodes: nodes names to be included in the paths
+    :param source_nodes: iterable with sources nodes (usually drugs)
+    :param target_nodes: iterable with target nodes (usually diseases)
+    :param lmax: maximum length of the path allowed
+    :param simple_paths: if true, only simple paths are calculated
+    :return: paths.
+    """
+    id2node = {
+        v: k
+        for k, v in node2id.items()
+    }
+
+    _target_nodes = [node2id[target_node] for target_node in target_nodes]
+
+    results = {}
+
+    for source_node, target_node in itt.product(source_nodes, target_nodes):
+
+        target_id = node2id[target_node]
+
+        # Calculate all paths between source and target
+        paths = enumerate_paths(
+            graph=reduced_graph,
+            source=node2id[source_node],
+            targets=[target_id],
+            lmax=lmax,
+            cycle_free=simple_paths,
+        )
+
+        # Skip if there are no paths
+        if not paths:
+            logger.warning(f'No paths between {source_node} and {target_node}')
+            continue
+
+        # Get summarized results for export
+        final_paths, nodes_present = analyze_paths_with_intermediates(
+            reduced_graph=reduced_graph,
+            paths=paths,
+            id2node=id2node,
+            intermediate_nodes=intermediate_nodes,
+        )
+
+        if final_paths is None:
+            continue
+
+        results[(source_node, target_node)] = (final_paths, nodes_present)
 
     return results
 
