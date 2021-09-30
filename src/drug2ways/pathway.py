@@ -120,6 +120,78 @@ def analyze_paths(
     return df, final_paths, enrichment_results
 
 
+def analyze_paths_with_intermediates(
+    reduced_graph: DiGraph,
+    paths: List[List[int]],
+    id2node: Mapping[int, str],
+    intermediate_nodes: List[str],
+):
+    """Analyze paths.
+
+    :param reduced_graph: graph
+    :param paths: paths
+    :param id2node: mapping between ids and node names
+    :param intermediate_nodes: nodes that must be present in the paths
+    """
+    results = defaultdict(Counter)
+    nodes_present = set()
+
+    # Iter over all paths
+    for path in paths:
+        # Iterate through each node in the path while tracking its position in the path
+        for index, node in enumerate(path):
+            results[index][id2node[node]] += 1
+
+    polarity_dict = {1: '->', -1: '-|'}
+
+    final_paths = set()
+    for path in paths:
+
+        reconstructed_path = []
+
+        for index, node in enumerate(path):
+
+            # Avoid crashing
+            if index + 1 == len(path):
+                continue
+
+            polarity = polarity_dict[reduced_graph[node][path[index + 1]]['polarity']]
+
+            if index == 0:
+                reconstructed_path.append(node)
+                reconstructed_path.append(polarity)
+                reconstructed_path.append(path[index + 1])
+            else:
+                reconstructed_path.append(polarity)
+                reconstructed_path.append(path[index + 1])
+
+        """New snippet different to 'analyze_paths'"""
+        # From ids to real node names
+        path_reconstructed = tuple(
+            id2node[cosa] if cosa in id2node else cosa
+            for cosa in reconstructed_path
+        )
+
+        if not any([
+            True if i in path_reconstructed else False
+            for i in intermediate_nodes
+        ]):
+            continue
+
+        for node in path_reconstructed:
+            if node in path_reconstructed:
+                nodes_present.add(node)
+
+        final_paths.add(path_reconstructed)
+
+    final_paths = _prepare_json(final_paths)
+
+    if not final_paths:
+        return None, None
+
+    return final_paths, nodes_present
+
+
 def pathway_enrichment(df: pd.DataFrame, geneset, prefix: str = 'ncbigene:') -> pd.DataFrame:
     """Enrich pathways on each lmax."""
     pathway_enrichment_df = pd.DataFrame()
