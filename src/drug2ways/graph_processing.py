@@ -79,7 +79,7 @@ def generate_reduced_graph(graph: DiGraph, target_nodes: List[Any]) -> Tuple[DiG
         increases = []
         decreases = []
         for neighbor in graph.neighbors(node):
-            relation_sign = graph[node][neighbor].get('polarity')
+            relation_sign = graph[node][neighbor].get('relation')
 
             if not relation_sign:
                 raise ValueError('Ensure that your graph has been loaded within the "polarity" attribute')
