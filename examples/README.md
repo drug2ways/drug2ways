@@ -37,10 +37,10 @@ target_node_4,inhibit
 
 ### Data
 
-- Network: https://github.com/drug2ways/drug2ways/blob/master/data/networks/data/openbiolink_network.tsv
-- Drugs: https://github.com/drug2ways/drug2ways/blob/master/data/validation/data/source_nodes_openbiolink.tsv
+- Network: https://raw.githubusercontent.com/drug2ways/results/master/networks/data/openbiolink_network.tsv
+- Drugs: https://raw.githubusercontent.com/drug2ways/results/master/validation/data/source_nodes_openbiolink.tsv
 - Indications/Phenotypes:
-  https://github.com/drug2ways/drug2ways/blob/master/data/validation/data/target_nodes_openbiolink.tsv
+  https://raw.githubusercontent.com/drug2ways/results/master/validation/data/target_nodes_openbiolink.tsv
 
 This example is outlined in the folowing script:
 - https://github.com/drug2ways/drug2ways/blob/master/examples/openbiolink_network_run.sh
@@ -48,10 +48,10 @@ This example is outlined in the folowing script:
 ## #2 In-House Network
 Similarly to the OpenBioLink network, the same three files are required for the In-House network:
 
-- Network: https://github.com/drug2ways/drug2ways/blob/master/data/networks/data/custom_network.tsv
-- Drugs: https://github.com/drug2ways/drug2ways/blob/master/data/validation/data/source_nodes_custom.tsv
+- Network: https://raw.githubusercontent.com/drug2ways/results/master/networks/data/custom_network.tsv
+- Drugs: https://raw.githubusercontent.com/drug2ways/results/master/validation/data/source_nodes_custom.tsv
 - Indications/Phenotypes:
-  https://github.com/drug2ways/drug2ways/blob/master/data/validation/data/target_nodes_custom.tsv
+  https://raw.githubusercontent.com/drug2ways/results/master/validation/data/target_nodes_custom.tsv
 
 This example is outlined in the folowing script:
 - https://github.com/drug2ways/drug2ways/blob/master/examples/custom_network_run.sh
