@@ -15,7 +15,7 @@ SOURCE_DIR = os.path.join(os.path.abspath(os.path.join(dir_path, os.pardir)))
 ROOT_DIR = os.path.join(os.path.abspath(os.path.join(SOURCE_DIR, os.pardir)))
 
 #: Default drug2ways directory using PyStow
-DEFAULT_DRUG2WAYS_DIR = pystow.get('drug2ways')
+DEFAULT_DRUG2WAYS_DIR = pystow.join('drug2ways')
 
 KEGG_GENESETS = os.path.join(DEFAULT_DRUG2WAYS_DIR, 'kegg.tsv')
 REACTOME_GENESETS = os.path.join(DEFAULT_DRUG2WAYS_DIR, 'reactome.tsv')
@@ -104,7 +104,7 @@ SOURCE = 'source'
 #: Column name for target node
 TARGET = 'target'
 #: Column name for relation
-RELATION = 'relation'
+RELATION = 'polarity'
 
 #: drug2ways emoji
 EMOJI = "💊🔬"

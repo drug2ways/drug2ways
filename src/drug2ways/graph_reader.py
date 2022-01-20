@@ -151,7 +151,7 @@ def _read_network_file(path: str, fmt: str) -> pd.DataFrame:
         path,
         sep=FORMAT_SEPARATOR_MAPPING[CSV] if fmt == CSV else FORMAT_SEPARATOR_MAPPING[TSV],
         dtype=str,
-        usecols=['source', 'target', 'relation'],
+        usecols=['source', 'target', 'polarity'],
     )
 
     if SOURCE not in df.columns or TARGET not in df.columns or RELATION not in df.columns:
