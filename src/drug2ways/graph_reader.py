@@ -202,7 +202,7 @@ def process_network(path: str, sep: str, connectivity: bool = False) -> DiGraph:
             relation=relation,
         )
 
-    logger.debug(f"Report on the number of relations: {dict(Counter(df.relation))}")
+    logger.debug(f"Report on the number of relations: {dict(Counter(df.polarity))}")
 
     if connectivity:
         cc = [
