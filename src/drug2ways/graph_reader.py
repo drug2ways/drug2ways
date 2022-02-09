@@ -199,7 +199,7 @@ def process_network(path: str, sep: str, connectivity: bool = False) -> DiGraph:
         graph.add_edge(
             sub_name,
             obj_name,
-            relation=relation,
+            polarity=relation,
         )
 
     logger.debug(f"Report on the number of relations: {dict(Counter(df.polarity))}")
