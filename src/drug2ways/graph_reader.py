@@ -164,7 +164,7 @@ def _read_network_file(path: str, fmt: str) -> pd.DataFrame:
         df[RELATION] = _harmonize_relation_column(df)
     except ValueError:
         # Remove shitty relations
-        original_relations = dict(Counter(df.relation))
+        original_relations = dict(Counter(df.polarity))
         df = df[df[RELATION].isin([1, -1, '1', '-1'])]
 
         # Try to harmonize again
