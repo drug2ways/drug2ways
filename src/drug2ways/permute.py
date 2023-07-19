@@ -29,7 +29,7 @@ def permute_network(path: str, sep: str) -> pd.DataFrame:
     # Read network
     network_df = pd.read_csv(path, sep=sep)
     # Read relations
-    relations = network_df.relation
+    relations = network_df.polarity
     logger.info(Counter(relations))
 
     # Read edge list
@@ -55,7 +55,7 @@ def permute_network(path: str, sep: str) -> pd.DataFrame:
         {
             'source': node_mapping[source],
             'target': node_mapping[target],
-            'relation': relations[index],
+            'polarity': relations[index],
         }
         for index, (source, target) in enumerate(permuted_edges)
         if index < len(relations)  # Skip the header if has been read by xswap
