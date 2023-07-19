@@ -9,7 +9,7 @@ import pandas as pd
 
 from drug2ways.rcr import rcr_all_paths, validate_paths_with_disease_data
 
-from tests.constants import RCR_GRAPH_EXAMPE
+from tests.constants import RCR_GRAPH_EXAMPLE
 
 log = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class TestRcr(unittest.TestCase):
 
     def create_graph(self):
         """Create example graph."""
-        df = pd.read_csv(RCR_GRAPH_EXAMPE)
+        df = pd.read_csv(RCR_GRAPH_EXAMPLE)
 
         graph = DiGraph()
 

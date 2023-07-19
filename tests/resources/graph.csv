@@ -1,4 +1,4 @@
-source,target,relation
+source,target,polarity
 a,b,1
 b,d,1
 e,b,1

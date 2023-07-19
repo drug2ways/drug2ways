@@ -25,7 +25,7 @@ class TestReader(unittest.TestCase):
 
         self.assertEqual(
             edges,
-            [('a', 'b', {'relation': 1}), ('a', 'c', {'relation': 1}), ('b', 'd', {'relation': 1}),
-             ('d', 'e', {'relation': 1}), ('d', 'g', {'relation': 1}), ('e', 'b', {'relation': 1}),
-             ('c', 'f', {'relation': 1}), ('f', 'g', {'relation': -1})]
+            [('a', 'b', {'polarity': 1}), ('a', 'c', {'polarity': 1}), ('b', 'd', {'polarity': 1}),
+             ('d', 'e', {'polarity': 1}), ('d', 'g', {'polarity': 1}), ('e', 'b', {'polarity': 1}),
+             ('c', 'f', {'polarity': 1}), ('f', 'g', {'polarity': -1})]
         )
